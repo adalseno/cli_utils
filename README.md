@@ -18,7 +18,7 @@ A modern, extensible CLI application for organizing and managing Python scripts 
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/adalseno/cli_utils.git
 cd cli_utils
 
 # Install with development dependencies
@@ -61,7 +61,9 @@ See the [Makefile Reference](src/docs/reference/makefile.md) for all available c
 
 ## Documentation
 
-Full documentation is available in the [docs](src/docs/) folder:
+📚 **[View Full Documentation Online](https://adalseno.github.io/cli_utils)**
+
+The complete documentation is also available in the [src/docs](src/docs/) folder:
 
 - **Getting Started**
   - [Installation](src/docs/getting-started/installation.md)

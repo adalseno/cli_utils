@@ -1,10 +1,10 @@
 site_name: CLI Utils Documentation
 site_description: A modern CLI application for managing scripts and utilities
 site_author: Andrea
-site_url: https://example.com
+site_url: https://adalseno.github.io/cli_utils
 
-repo_url: https://github.com/yourusername/cli-utils
-repo_name: cli-utils
+repo_url: https://github.com/adalseno/cli_utils
+repo_name: cli_utils
 
 theme:
   name: material
@@ -84,4 +84,4 @@ site_dir: src/site
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/yourusername
+      link: https://github.com/adalseno
