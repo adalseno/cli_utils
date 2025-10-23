@@ -32,12 +32,12 @@ help: ## Show this help message
 
 install: ## Install project dependencies
 	@echo "$(BLUE)Installing project dependencies...$(NC)"
-	$(UV) pip install -e .
+	$(UV) sync
 	@echo "$(GREEN)✓ Installation complete$(NC)"
 
 install-dev: ## Install project with development dependencies
 	@echo "$(BLUE)Installing project with dev dependencies...$(NC)"
-	$(UV) pip install -e ".[dev]"
+	$(UV) sync --all-extras
 	@echo "$(GREEN)✓ Development installation complete$(NC)"
 
 test: ## Run tests (use TEST=path and ARGS='flags' to customize)
