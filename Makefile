@@ -243,4 +243,4 @@ install-aliases: ## Add shell aliases to ~/.zshrc
 	echo "  textup, textlow, texttitle - Text conversion"; \
 	echo "  cu, cul, cur, cuv, cuc     - CLI shortcuts"; \
 	echo ""; \
-	echo "See docs/SHELL_ALIASES.md for details"
+	echo "See src/docs/reference/shell-aliases.md for details"

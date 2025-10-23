@@ -198,6 +198,6 @@ make install-dev
 
 ## See Also
 
-- [INSTALL.md](../INSTALL.md) - Detailed installation guide
-- [MAKEFILE_GUIDE.md](../MAKEFILE_GUIDE.md) - Makefile command reference
-- [README.md](../README.md) - Project overview
+- [Installation Guide](../getting-started/installation.md) - Detailed installation guide
+- [Makefile Reference](makefile.md) - Makefile command reference
+- [Project Overview](../../README.md) - README at project root

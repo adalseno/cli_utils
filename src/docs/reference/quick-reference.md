@@ -195,10 +195,10 @@ cli-utils local text_utils --help  # Group help
 ```
 
 **Documentation:**
-- [README.md](README.md) - Project overview
-- [INSTALL.md](INSTALL.md) - Installation guide
-- [docs/SHELL_ALIASES.md](docs/SHELL_ALIASES.md) - Alias guide
-- [MAKEFILE_GUIDE.md](MAKEFILE_GUIDE.md) - Makefile reference
+- [Project Overview](../../README.md) - README at project root
+- [Installation Guide](../getting-started/installation.md) - Detailed installation
+- [Shell Aliases](shell-aliases.md) - Alias guide
+- [Makefile Guide](makefile.md) - Makefile reference
 
 ## Examples
 

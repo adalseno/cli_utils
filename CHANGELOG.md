@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - System-wide installation via wrapper script
 - Shell wrapper script for global CLI access
 - Global installation targets (link-global, install-global)
-- Comprehensive documentation (README, INSTALL, MAKEFILE_GUIDE)
+- Comprehensive documentation (README, Installation Guide, Makefile Reference, etc.)
 
 ### Fixed
 - RuntimeWarning when running with `python -m cli_utils.main` by creating separate `__main__.py` entry point

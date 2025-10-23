@@ -346,6 +346,6 @@ unalias cu
 
 ## See Also
 
-- [INSTALL.md](../INSTALL.md) - Installation guide
+- [Installation Guide](../getting-started/installation.md) - Installation guide
 - [README.md](../README.md) - Project overview
 - [scripts/shell-aliases.sh](../scripts/shell-aliases.sh) - Alias definitions
