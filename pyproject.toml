@@ -1,0 +1,103 @@
+[project]
+name = "cli-utils"
+version = "0.1.0"
+description = "A modern CLI application to organize and manage Python scripts for local tasks and remote APIs"
+readme = "README.md"
+requires-python = ">=3.13"
+authors = [
+    { name = "Andrea", email = "your.email@example.com" }
+]
+license = { text = "MIT" }
+keywords = ["cli", "utilities", "automation", "scripts"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3 :: Only",
+]
+
+dependencies = [
+    "python-dotenv>=1.1.1",
+    "requests>=2.32.5",
+    "typer>=0.20.0",
+    "rich>=13.0.0",
+    "pyyaml>=6.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "pytest-mock>=3.14.0",
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.26.0",
+    "ruff>=0.8.0",
+]
+
+[project.scripts]
+cli-utils = "cli_utils.main:app"
+
+[tool.ruff]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+line-length = 120
+indent-width = 4
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["I", "E4", "E7", "E9", "F", "B"]
+ignore = []
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
+[tool.pytest.ini_options]
+testpaths = ["src/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--verbose",
+    "--cov=cli_utils",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -1,0 +1,56 @@
+#!/bin/bash
+# CLI Utils - System-wide wrapper script
+# This script allows running cli-utils from anywhere on your system
+
+set -e  # Exit on error
+
+# Get the directory where this script is located (resolves symlinks)
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")")" && pwd)"
+
+# The project root is one level up from scripts/
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Path to the virtual environment
+VENV_PATH="$PROJECT_ROOT/.venv"
+VENV_PYTHON="$VENV_PATH/bin/python"
+
+# Function to run with uv
+run_with_uv() {
+    if command -v uv &> /dev/null; then
+        cd "$PROJECT_ROOT" && uv run python -m cli_utils "$@"
+    else
+        echo "Error: 'uv' command not found" >&2
+        echo "Please install uv: curl -LsSf https://astral.sh/uv/install.sh | sh" >&2
+        echo "Or activate the virtual environment manually and run directly" >&2
+        exit 1
+    fi
+}
+
+# Check if we're already in a virtual environment for this project
+if [ -n "$VIRTUAL_ENV" ] && [ "$VIRTUAL_ENV" = "$VENV_PATH" ]; then
+    # Already in the correct venv, run directly with python
+    python -m cli_utils "$@"
+
+elif [ -f "$VENV_PYTHON" ]; then
+    # Virtual environment exists, we can use it directly or via uv
+
+    # Option 1: Try to use the venv's Python directly (faster)
+    if [ -x "$VENV_PYTHON" ]; then
+        # Set PYTHONPATH to include src directory
+        export PYTHONPATH="$PROJECT_ROOT/src:$PYTHONPATH"
+        "$VENV_PYTHON" -m cli_utils "$@"
+    else
+        # Option 2: Fall back to uv run
+        run_with_uv "$@"
+    fi
+
+else
+    # No virtual environment found
+    echo "Error: Virtual environment not found at $VENV_PATH" >&2
+    echo "" >&2
+    echo "Please set up the project first:" >&2
+    echo "  cd $PROJECT_ROOT" >&2
+    echo "  make install-dev" >&2
+    echo "" >&2
+    exit 1
+fi
