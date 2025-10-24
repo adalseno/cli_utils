@@ -247,8 +247,57 @@ Run tests:
 pytest
 ```
 
+## Using Common Utilities
+
+CLI Utils provides reusable utilities for common patterns like directory browsing, file selection, and output handling. See the [Common Utilities](common-utilities.md) guide for details on:
+
+- **Common Options**: Pre-defined `Annotated` types for `--recursive`, `--browse`, `--output`, `--verbose`
+- **Directory Handler**: Easy directory selection with file manager support
+- **Output Handler**: Handle console vs file output with browse mode
+- **File Picker**: Low-level file manager integration
+- **Clipboard**: Cross-platform clipboard support
+
+**Example using common utilities:**
+
+```python
+from cli_utils.utils.common_options import (
+    BrowseOption,
+    OptionalDirectoryArg,
+    OutputOption,
+    RecursiveOption,
+)
+from cli_utils.utils.directory_handler import get_directory
+from cli_utils.utils.output_handler import OutputHandler, create_default_filename
+
+def my_command(
+    directory: OptionalDirectoryArg = None,
+    recursive: RecursiveOption = False,
+    browse: BrowseOption = False,
+    output: OutputOption = None,
+) -> None:
+    """My command with common utilities."""
+    # Get directory with browse support
+    base_path = get_directory(directory=directory, browse=browse)
+
+    # Process files
+    files = base_path.rglob("*.py") if recursive else base_path.glob("*.py")
+    result = f"Found {len(list(files))} files"
+
+    # Handle output
+    handler = OutputHandler(output=output, default_filename="report.txt")
+    handler.save_or_print(result)
+```
+
+This gives your command automatic support for:
+- `--browse` / `-b` - Interactive directory selection
+- `--recursive` / `-r` - Recursive file search
+- `--output` / `-o` - Save to file or use browse mode for save location
+
+See [Common Utilities](common-utilities.md) for complete documentation.
+
 ## Next Steps
 
-- Learn about [Command Groups](command-groups.md)
-- Check out [Examples](../examples/text-utils.md)
-- Read the [API Reference](../api/commands.md)
+- **[Common Utilities](common-utilities.md)** - Learn about reusable utilities
+- **[Command Groups](command-groups.md)** - Organize related commands
+- **[Examples](../examples/text-utils.md)** - See real command examples
+- **[Command Reference](../reference/commands.md)** - Browse all available commands

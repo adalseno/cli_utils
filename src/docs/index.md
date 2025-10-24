@@ -38,7 +38,8 @@ cli_utils/
 │   │   │   ├── local/        # Local task commands
 │   │   │   │   ├── text_utils/
 │   │   │   │   ├── file_ops/
-│   │   │   │   └── system_info/
+│   │   │   │   ├── system_info/
+│   │   │   │   └── devtools/
 │   │   │   └── remote/       # Remote API commands
 │   │   └── utils/            # Shared utilities
 │   ├── docs/                 # Documentation
@@ -49,7 +50,10 @@ cli_utils/
 
 ## Getting Started
 
-Check out the [Installation Guide](getting-started/installation.md) to get started with CLI Utils.
+1. **[Installation Guide](getting-started/installation.md)** - Install CLI Utils on your system
+2. **[Command Reference](reference/commands.md)** - Complete documentation of all available commands
+3. **[Quick Start](getting-started/quickstart.md)** - Learn the basics in 5 minutes
+4. **[Examples](examples/)** - Detailed usage examples for each command group
 
 ## Design Philosophy
 

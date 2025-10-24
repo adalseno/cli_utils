@@ -62,6 +62,7 @@ nav:
   - User Guide:
       - Configuration: user-guide/configuration.md
       - Adding Commands: user-guide/adding-commands.md
+      - Common Utilities: user-guide/common-utilities.md
       - Command Groups: user-guide/command-groups.md
   - Examples:
       - Text Utils: examples/text-utils.md
@@ -69,12 +70,14 @@ nav:
       - Clipboard: examples/clipboard.md
       - API Commands: examples/api-commands.md
   - Reference:
+      - Command Reference: reference/commands.md
       - Quick Reference: reference/quick-reference.md
       - Makefile Guide: reference/makefile.md
       - Shell Aliases: reference/shell-aliases.md
       - Scripts: reference/scripts.md
       - Technical Notes: reference/technical-notes.md
   - API Reference:
+      - Commands (Auto-generated): reference/api-commands.md
       - Core: api/core.md
       - Configuration: api/config.md
       - Commands: api/commands.md
