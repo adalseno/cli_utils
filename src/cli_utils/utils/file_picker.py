@@ -8,13 +8,41 @@ import os
 import shutil
 import subprocess
 import tempfile
+from pathlib import Path
 from typing import Literal, Optional
 
 from rich.console import Console
+from rich.prompt import Prompt
 
 console = Console()
 
 FileManager = Literal["yazi", "mc", "ranger", "lf"]
+
+
+def _normalize_to_directory(selected_path: str) -> Optional[str]:
+    """Normalize a selected path to a directory.
+
+    If a file was selected, returns its parent directory.
+    If a directory was selected, returns it.
+    If the path doesn't exist, returns None.
+
+    Args:
+        selected_path: Path selected by user (file or directory)
+
+    Returns:
+        Directory path or None if invalid
+    """
+    if not selected_path:
+        return None
+
+    # If a file was selected, use its parent directory
+    if os.path.isfile(selected_path):
+        return os.path.dirname(selected_path)
+    # If a directory was selected, use it
+    elif os.path.isdir(selected_path):
+        return selected_path
+
+    return None
 
 
 def detect_available_file_managers() -> list[FileManager]:
@@ -63,9 +91,7 @@ def pick_directory_with_yazi(start_dir: str = ".") -> Optional[str]:
         if os.path.exists(tmp_file):
             with open(tmp_file, "r") as f:
                 selected = f.read().strip()
-
-            if selected and os.path.isdir(selected):
-                return selected
+            return _normalize_to_directory(selected)
 
         return None
 
@@ -107,9 +133,7 @@ def pick_directory_with_mc(start_dir: str = ".") -> Optional[str]:
         if os.path.exists(pwd_file):
             with open(pwd_file, "r") as f:
                 selected = f.read().strip()
-
-            if selected and os.path.isdir(selected):
-                return selected
+            return _normalize_to_directory(selected)
 
         return None
 
@@ -150,9 +174,7 @@ def pick_directory_with_ranger(start_dir: str = ".") -> Optional[str]:
         if os.path.exists(chooser_file):
             with open(chooser_file, "r") as f:
                 selected = f.read().strip()
-
-            if selected and os.path.isdir(selected):
-                return selected
+            return _normalize_to_directory(selected)
 
         return None
 
@@ -193,9 +215,7 @@ def pick_directory_with_lf(start_dir: str = ".") -> Optional[str]:
         if os.path.exists(tmp_file):
             with open(tmp_file, "r") as f:
                 selected = f.read().strip()
-
-            if selected and os.path.isdir(selected):
-                return selected
+            return _normalize_to_directory(selected)
 
         return None
 
@@ -266,17 +286,20 @@ def save_file(
     default_filename: str = "output.txt",
     start_dir: str = ".",
     preferred_manager: Optional[FileManager] = None,
+    allow_custom_name: bool = True,
 ) -> Optional[str]:
     """Pick a file path to save to using an available terminal file manager.
 
     This function uses a file manager to navigate and select/create a file path
     for saving output. The user can navigate to a directory and the default
-    filename will be used, or they can select/specify a custom filename.
+    filename will be used, or they can specify a custom filename while preserving
+    the extension.
 
     Args:
         default_filename: Default filename to suggest for saving
         start_dir: Starting directory for the file manager
         preferred_manager: Preferred file manager to use (if available)
+        allow_custom_name: If True, prompt user to customize filename (default: True)
 
     Returns:
         Selected file path or None if cancelled or no file manager available
@@ -301,7 +324,9 @@ def save_file(
         # Use first available manager
         manager = available[0]
 
-    console.print(f"[dim]Opening {manager}... Navigate to desired directory and select/confirm to save as '{default_filename}'[/dim]")
+    console.print(f"[dim]Opening {manager}...[/dim]")
+    console.print(f"[cyan]→ Navigate to the directory where you want to save the file[/cyan]")
+    console.print(f"[cyan]→ Press Enter on the folder to select it (you'll customize the filename next)[/cyan]")
 
     # For file saving, we'll use the directory picker and then append the default filename
     # This provides a simple but effective way to choose the save location
@@ -317,8 +342,38 @@ def save_file(
         return None
 
     if selected_dir:
-        # Combine selected directory with default filename
-        file_path = os.path.join(selected_dir, default_filename)
+        # Extract extension from default filename
+        default_path = Path(default_filename)
+        default_stem = default_path.stem
+        default_ext = default_path.suffix
+
+        # Prompt for custom filename if enabled
+        if allow_custom_name:
+            console.print(f"\n[green]✓ Directory selected:[/green] {selected_dir}")
+            console.print(f"\n[cyan]Default filename:[/cyan] {default_filename}")
+            console.print(f"[dim]Press Enter to use default, or type a custom name (extension '{default_ext}' will be preserved)[/dim]")
+
+            custom_name = Prompt.ask(
+                "[cyan]Filename[/cyan]",
+                default=default_stem,
+                show_default=True
+            ).strip()
+
+            # If user just pressed Enter (returned default) or custom name matches default, use default filename
+            if custom_name == default_stem or not custom_name:
+                final_filename = default_filename
+            else:
+                # User provided a custom name, use it but preserve extension
+                # Remove any extension user might have added
+                custom_path = Path(custom_name)
+                final_stem = custom_path.stem if custom_path.stem else custom_name
+                final_filename = f"{final_stem}{default_ext}"
+        else:
+            final_filename = default_filename
+
+        # Combine selected directory with final filename
+        file_path = os.path.join(selected_dir, final_filename)
+        console.print(f"[green]Save location:[/green] {file_path}")
         return file_path
 
     return None

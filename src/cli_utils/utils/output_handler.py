@@ -43,7 +43,15 @@ class OutputHandler:
         Returns:
             File path to save to, or None if outputting to console
         """
+        # Return cached path if already determined
+        if self._output_path is not None or hasattr(self, '_path_determined'):
+            return self._output_path
+
+        # Mark as determined to avoid re-prompting
+        self._path_determined = True
+
         if not self.output:
+            self._output_path = None
             return None
 
         if self.output.lower() == "browse":
@@ -55,9 +63,11 @@ class OutputHandler:
             if output_path is None:
                 console.print("[yellow]No output file selected. Cancelled.[/yellow]")
                 raise typer.Abort()
+            self._output_path = output_path
             return output_path
         else:
             # Use provided file path
+            self._output_path = self.output
             return self.output
 
     def save_or_print(self, content: str) -> None:
