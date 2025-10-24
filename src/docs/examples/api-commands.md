@@ -2,6 +2,97 @@
 
 This guide shows how to create and use commands that interact with remote APIs.
 
+## Weather API Example
+
+A simple example command that fetches weather data from the Open-Meteo API.
+
+### Basic Usage
+
+Get weather information for a city:
+
+```bash
+cli-utils remote api-example weather milan
+```
+
+Output:
+```
+{'latitude': 45.48, 'longitude': 9.199999, 'generationtime_ms': 0.004291534423828125,
+'utc_offset_seconds': 0, 'timezone': 'GMT', 'timezone_abbreviation': 'GMT', 'elevation': 128.0}
+```
+
+### Copy to Clipboard
+
+Copy the result to your clipboard:
+
+```bash
+cli-utils remote api-example weather milan --copy
+# or use the short flag
+cli-utils remote api-example weather milan -c
+```
+
+The JSON output will be formatted and copied to your clipboard, ready to paste into other applications.
+
+### Available Cities
+
+The example currently supports:
+- `mellieha` - Mellieha, Malta
+- `milan` - Milan, Italy
+- `paris` - Paris, France
+
+### How It Works
+
+This example demonstrates:
+1. **Making API requests** - Using the `requests` library to fetch data
+2. **Parsing JSON responses** - Converting API responses to Python dictionaries
+3. **Clipboard integration** - Using the `copy_to_clipboard` utility
+4. **Rich console output** - Displaying colored output with Rich
+
+### Source Code
+
+Location: `src/cli_utils/commands/remote/api_example/weather.py`
+
+```python
+"""Get weather for a specific city."""
+
+import requests
+import typer
+from rich.console import Console
+
+from cli_utils.utils.clipboard import copy_to_clipboard
+
+console = Console()
+
+def weather(
+    city: str = typer.Argument(..., help="City to get weather for"),
+    copy: bool = typer.Option(False, "--copy", "-c", help="Copy result to clipboard"),
+) -> None:
+    """Get city weather.
+
+    Example:
+        $ cli-utils remote api-example weather milan
+        $ cli-utils remote api-example weather milan --copy
+    """
+    cities = {
+        "mellieha": {"latitude": "35.57", "longitude": "14.21"},
+        "milan": {"latitude": "45.47", "longitude": "9.19"},
+        "paris": {"latitude": "48.86", "longitude": "2.35"},
+    }
+
+    if city.lower() in cities:
+        url = f"https://api.open-meteo.com/v1/forecast?latitude={cities[city]['latitude']}&longitude={cities[city]['longitude']}"
+
+        response = requests.get(url)
+        result = response.json()
+
+        console.print(f"[green]{result}[/green]")
+
+        if copy:
+            import json
+            copy_to_clipboard(json.dumps(result, indent=2))
+    else:
+        console.print(f"[red]City {city} not found[/red]")
+```
+
 ## Creating an API Command
 
 Here's a template for creating API commands:

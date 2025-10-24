@@ -65,6 +65,7 @@ nav:
       - Command Groups: user-guide/command-groups.md
   - Examples:
       - Text Utils: examples/text-utils.md
+      - Devtools: examples/devtools.md
       - Clipboard: examples/clipboard.md
       - API Commands: examples/api-commands.md
   - Reference:
