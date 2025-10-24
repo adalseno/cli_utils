@@ -79,6 +79,7 @@ The complete documentation is also available in the [src/docs](src/docs/) folder
   - [Scripts](src/docs/reference/scripts.md)
 - **Examples**
   - [Text Utils](src/docs/examples/text-utils.md)
+  - [Devtools](src/docs/examples/devtools.md)
   - [Clipboard](src/docs/examples/clipboard.md)
   - [API Commands](src/docs/examples/api-commands.md)
 
@@ -100,6 +101,9 @@ cli_utils/
 │   │   ├── core/            # Core utilities
 │   │   └── commands/        # Command modules
 │   │       ├── local/       # Local task commands
+│   │       │   ├── text_utils/
+│   │       │   ├── devtools/
+│   │       │   └── ...
 │   │       └── remote/      # Remote API commands
 │   ├── docs/                # MkDocs documentation
 │   └── tests/               # Test suite

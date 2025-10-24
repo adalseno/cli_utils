@@ -48,6 +48,19 @@ cli-utils local text_utils titlecase "text"
 # With clipboard (requires pyperclip)
 cli-utils local text_utils uppercase --copy "text"
 
+# Developer tools
+cli-utils local devtools code-report .
+cli-utils local devtools code-report src --recursive
+cli-utils local devtools code-report . -r -f json
+cli-utils local devtools code-report . --format markdown
+cli-utils local devtools code-report --browse          # Interactive directory picker
+cli-utils local devtools code-report -b -r             # Browse + recursive
+
+cli-utils local devtools count-tests tests             # Count test functions
+cli-utils local devtools count-tests tests -r          # Recursive test count
+cli-utils local devtools count-tests tests -r -v       # Verbose (show test names)
+cli-utils local devtools count-tests -b -r             # Browse + count tests
+
 # Configuration
 cli-utils config
 cli-utils version
@@ -208,6 +221,12 @@ textup "hello world"
 
 # Process files
 cat names.txt | textlow_pipe > names_lower.txt
+
+# Analyze code
+cli-utils local devtools code-report src --recursive
+
+# Generate metrics in JSON
+cli-utils local devtools code-report . -r -f json > metrics.json
 
 # In scripts
 #!/bin/bash
