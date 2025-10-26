@@ -147,7 +147,7 @@ def _copy_pyperclip(text: str) -> bool:
         True if successful
     """
     try:
-        import pyperclip
+        import pyperclip  # type: ignore[import-untyped]
 
         pyperclip.copy(text)
         console.print("[dim]✓ Copied to clipboard (pyperclip)[/dim]")
@@ -179,6 +179,7 @@ def _try_command(cmd: list[str], text: str) -> bool:
         )
 
         # Write data and close stdin
+        assert process.stdin is not None
         process.stdin.write(text.encode("utf-8"))
         process.stdin.close()
 
@@ -242,7 +243,7 @@ def get_clipboard_info() -> dict[str, Optional[str]]:
 
     # Check for pyperclip
     try:
-        import pyperclip  # noqa: F401
+        import pyperclip  # type: ignore[import-untyped]  # noqa: F401
 
         info["available_tools"].append("pyperclip (Python)")
         if not info["recommended"]:

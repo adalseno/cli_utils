@@ -325,8 +325,8 @@ def save_file(
         manager = available[0]
 
     console.print(f"[dim]Opening {manager}...[/dim]")
-    console.print(f"[cyan]→ Navigate to the directory where you want to save the file[/cyan]")
-    console.print(f"[cyan]→ Press Enter on the folder to select it (you'll customize the filename next)[/cyan]")
+    console.print("[cyan]→ Navigate to the directory where you want to save the file[/cyan]")
+    console.print("[cyan]→ Press Enter on the folder to select it (you'll customize the filename next)[/cyan]")
 
     # For file saving, we'll use the directory picker and then append the default filename
     # This provides a simple but effective way to choose the save location

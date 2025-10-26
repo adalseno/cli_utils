@@ -85,7 +85,7 @@ class OutputHandler:
                 console.print(f"[green]Report saved to:[/green] {output_path}")
             except Exception as e:
                 console.print(f"[red]Error saving report: {e}[/red]")
-                raise typer.Abort()
+                raise typer.Abort() from e
         else:
             # Print to console
             print(content)

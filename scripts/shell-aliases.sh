@@ -42,6 +42,15 @@ texttitlec() {
 }
 
 # ============================================================================
+# System Info & Productivity Utilities
+# ============================================================================
+
+# Todo app shortcut
+todo() {
+    cli-utils local system_info todo "$@"
+}
+
+# ============================================================================
 # CLI Utils Shortcuts
 # ============================================================================
 
@@ -100,6 +109,9 @@ textlow_pipe() {
 #   textupc "hello world"          → HELLO WORLD (and copies to clipboard)
 #   textlowc "HELLO"               → hello (and copies to clipboard)
 #   texttitlec "hello"             → Hello (and copies to clipboard)
+#
+# Productivity:
+#   todo                           → Launch the interactive todo app
 #
 # Shortcuts:
 #   cu --help                      → cli-utils --help

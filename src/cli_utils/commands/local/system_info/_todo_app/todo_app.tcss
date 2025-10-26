@@ -1,0 +1,183 @@
+Screen {
+    layout: vertical;
+}
+
+#body {
+    layout: horizontal;
+    height: 1fr;
+}
+
+#sidebar {
+    width: 25%;
+    border: round green;
+    padding: 1;
+}
+
+#smart-list-title {
+    padding: 1 0;
+    text-style: bold;
+    color: $accent;
+}
+
+#category-list-title {
+    padding: 1 0;
+    margin-top: 0;
+    text-style: bold;
+    color: $accent;
+}
+
+.sidebar-section-header {
+    height: 1;
+    padding: 1;
+    background: $boost;
+    text-style: bold;
+}
+
+#smart-list {
+    height: auto;
+}
+
+#smart-list > ListItem {
+    padding: 0 1;
+}
+
+#smart-list > ListItem:hover {
+    background: $boost;
+}
+
+#smart-list > ListItem.-selected {
+    background: $accent 20%;
+}
+
+#category-list-bar {
+    height: 1fr;
+}
+
+#category-list-bar > ListItem {
+    padding: 0 1;
+}
+
+#category-list-bar > ListItem:hover {
+    background: $boost;
+}
+
+#category-list-bar > ListItem.-selected {
+    background: $accent 20%;
+}
+
+#categories-header {
+    height: 3;
+    padding: 1;
+    background: $boost;
+    text-style: bold;
+}
+
+#categories-container {
+    height: 1fr;
+    border: solid $primary;
+    margin: 0 1 1 1;
+}
+
+#categories-list-view {
+    height: auto;
+}
+
+#categories-list-view > ListItem {
+    padding: 0 2;
+}
+
+#categories-list-view > ListItem:hover {
+    background: $boost;
+}
+
+#categories-list-view > ListItem.-selected {
+    background: $accent 20%;
+}
+
+
+
+#tasks-header {
+    height: 3;
+    padding: 1;
+    background: $boost;
+    text-style: bold;
+}
+
+#tasks-container {
+    height: 1fr;
+    border: solid $primary;
+    margin: 0 1 1 1;
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+#task-list {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+#task-list > ListItem {
+    padding: 0 2;
+}
+
+#task-list > ListItem:hover {
+    background: $boost;
+}
+
+#task-list > ListItem.-selected {
+    background: $accent 20%;
+}
+
+#input-container {
+    height: auto;
+    padding: 1;
+    background: $panel;
+    dock: bottom;
+}
+
+#category-input-container {
+    height: auto;
+    padding: 1;
+    background: $panel;
+    dock: bottom;
+}
+
+#task-input {
+    width: 100%;
+}
+
+#category-input {
+    width: 100%;
+}
+
+#content {
+    width: 1fr;
+    border: round white;
+    padding: 1;
+}
+
+#task-view {
+    height: 100%;
+    layout: vertical;
+}
+
+#category-view {
+    height: 100%;
+    layout: vertical;
+}
+
+Header {
+    dock: top;
+}
+
+Footer {
+    dock: bottom;
+}
+
+#title {
+    content-align: center middle;
+    height: 3;
+    color: yellow;
+    text-style: bold;
+}

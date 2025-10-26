@@ -223,7 +223,7 @@ def generate_text_report(reports, total_lines):
         for cname, mcount in sorted(r['class_methods'].items()):
             lines.append(f"    - {cname}: {mcount} methods")
 
-    lines.append(f"\nTotal:")
+    lines.append("\nTotal:")
     lines.append(f"  Files     : {len(reports)}")
     lines.append(f"  Lines     : {total_lines}")
     lines.append(f"  Classes   : {sum(r['classes'] for r in reports)}")
