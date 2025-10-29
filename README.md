@@ -2,6 +2,11 @@
 
 A modern, extensible CLI application for organizing and managing Python scripts for both local tasks and remote API interactions.
 
+> [!CAUTION]
+> This app is thought to be used on a Linux system. It relies on `dialog` to display calendar widgets, `systemd`, and `notify-send` to display notifications.\
+> There is a library for self-contained <a href="https://github.com/ddkasa/textual-timepiece">Textual widgets</a>, but it's still in early alpha.
+
+
 ## Features
 
 - **Auto-Discovery**: Commands are automatically discovered and loaded from organized directories
@@ -11,6 +16,9 @@ A modern, extensible CLI application for organizing and managing Python scripts 
 - **Well-Tested**: Comprehensive test suite with pytest
 - **Documented**: Complete documentation with MkDocs and auto-generated API docs
 - **Configurable**: Flexible configuration via YAML files and environment variables
+
+<img width="1000" height="600" alt="example_screenshot" src="https://github.com/user-attachments/assets/646f4689-9766-4477-a1f0-1e1c4148a551" />
+
 
 ## Quick Start
 
