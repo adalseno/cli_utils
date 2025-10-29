@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING
 
+from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
+from textual.events import DescendantFocus, DescendantBlur
 from textual.widgets import Input, ListView, Static
 
 from .widgets import CategoryItem
@@ -15,8 +17,13 @@ class CategoryView(Vertical):
     BINDINGS = [
         ("e", "edit_category", "Edit"),
         ("d", "delete_category", "Delete"),
-        ("escape", "cancel_input", "Cancel"),
+        ("t", "show_tasks", "Tasks"),
+        Binding("escape", "cancel_input", "Cancel", show=False),
     ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._input_focused = False
 
     @property
     def todo_app(self) -> "TodoApp":
@@ -101,4 +108,29 @@ class CategoryView(Vertical):
             category_input.value = ""
             category_input.blur()
             self.todo_app.editing_category_id = None
-            
+
+    def action_show_tasks(self) -> None:
+        """Switch to tasks view."""
+        self.todo_app.action_show_tasks()
+
+    # TODO: Fix escape binding visibility - it should show in footer when input is focused
+    # Current implementation doesn't display the binding despite check_action returning True
+    # Consider alternative approaches: custom footer, direct binding manipulation, or Textual updates
+    def on_descendant_focus(self, event: DescendantFocus) -> None:
+        """Track when input is focused to show escape binding."""
+        if isinstance(event.widget, Input) and event.widget.id == "category-input":
+            self._input_focused = True
+            self.app.refresh_bindings()
+
+    def on_descendant_blur(self, event: DescendantBlur) -> None:
+        """Track when input loses focus to hide escape binding."""
+        if isinstance(event.widget, Input) and event.widget.id == "category-input":
+            self._input_focused = False
+            self.app.refresh_bindings()
+
+    def check_action(self, action: str, parameters: tuple) -> bool | None:
+        """Check if an action is currently available."""
+        if action == "cancel_input":
+            # Only show/enable cancel_input when input is focused
+            return self._input_focused if self._input_focused else None
+        return True

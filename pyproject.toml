@@ -1,6 +1,6 @@
 [project]
 name = "cli-utils"
-version = "0.1.1"
+version = "0.1.2"
 description = "A modern CLI application to organize and manage Python scripts for local tasks and remote APIs"
 readme = "README.md"
 requires-python = ">=3.13"

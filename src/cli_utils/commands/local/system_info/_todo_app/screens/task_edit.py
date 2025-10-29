@@ -7,6 +7,8 @@ from textual.containers import Horizontal, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Button, Input, Label, Select, Static
 
+from .dtwidgets import DateInput
+
 if TYPE_CHECKING:
     from ..todo_app import TodoApp
     
@@ -141,14 +143,13 @@ class TaskEditScreen(ModalScreen):
                 )
 
             # Due date
-            with Horizontal():
-                yield Label("Due Date:", classes="field-label")
-                yield Input(
-                    value=self.due_date,
-                    placeholder="YYYY-MM-DD",
-                    id="task-due-date",
-                    classes="field-input"
-                )
+            yield DateInput(
+                label="Due Date:",
+                label_classes="field-label",
+                value=self.due_date,
+                input_id="task-due-date",
+                input_classes="field-input"
+            )
 
             # Buttons
             with Horizontal(id="button-container"):

@@ -88,13 +88,25 @@ class TodoDatabase:
                 )
             """)
 
-            # Reminders table (for future use)
+            # Reminders table
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS reminders (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     task_id INTEGER NOT NULL,
                     reminder_datetime TEXT NOT NULL,
                     FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
+                )
+            """)
+
+            # Sent notifications tracking table
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS sent_notifications (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    reminder_id INTEGER NOT NULL,
+                    sent_at TEXT NOT NULL,
+                    plugin_name TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    FOREIGN KEY (reminder_id) REFERENCES reminders(id) ON DELETE CASCADE
                 )
             """)
 
@@ -435,3 +447,173 @@ class TodoDatabase:
 
             cursor = conn.execute(query, params)
             return cursor.fetchone()["count"]
+
+    # ==================== Reminder Methods ====================
+
+    def get_reminders(self, task_id: int) -> list[Reminder]:
+        """Get all reminders for a specific task.
+
+        Args:
+            task_id: ID of the task
+
+        Returns:
+            List of Reminder objects sorted by reminder_datetime
+        """
+        with self._get_connection() as conn:
+            cursor = conn.execute("""
+                SELECT id, task_id, reminder_datetime
+                FROM reminders
+                WHERE task_id = ?
+                ORDER BY reminder_datetime ASC
+            """, (task_id,))
+            return [
+                Reminder(
+                    id=row["id"],
+                    task_id=row["task_id"],
+                    reminder_datetime=row["reminder_datetime"]
+                )
+                for row in cursor.fetchall()
+            ]
+
+    def get_reminder_count(self, task_id: int) -> int:
+        """Get the number of reminders for a specific task.
+
+        Args:
+            task_id: ID of the task
+
+        Returns:
+            Number of reminders for the task
+        """
+        with self._get_connection() as conn:
+            cursor = conn.execute(
+                "SELECT COUNT(*) as count FROM reminders WHERE task_id = ?",
+                (task_id,)
+            )
+            return cursor.fetchone()["count"]
+
+    def add_reminder(self, task_id: int, reminder_datetime: str) -> int:
+        """Add a new reminder for a task.
+
+        Args:
+            task_id: ID of the task
+            reminder_datetime: Reminder date/time in ISO format (YYYY-MM-DD HH:MM)
+
+        Returns:
+            ID of the newly created reminder
+        """
+        with self._get_connection() as conn:
+            cursor = conn.execute(
+                "INSERT INTO reminders (task_id, reminder_datetime) VALUES (?, ?)",
+                (task_id, reminder_datetime)
+            )
+            conn.commit()
+            assert cursor.lastrowid is not None
+            return cursor.lastrowid
+
+    def update_reminder(self, reminder_id: int, reminder_datetime: str) -> None:
+        """Update a reminder's datetime.
+
+        Args:
+            reminder_id: ID of the reminder to update
+            reminder_datetime: New reminder date/time in ISO format (YYYY-MM-DD HH:MM)
+        """
+        with self._get_connection() as conn:
+            conn.execute(
+                "UPDATE reminders SET reminder_datetime = ? WHERE id = ?",
+                (reminder_datetime, reminder_id)
+            )
+            conn.commit()
+
+    def delete_reminder(self, reminder_id: int) -> None:
+        """Delete a reminder.
+
+        Args:
+            reminder_id: ID of the reminder to delete
+        """
+        with self._get_connection() as conn:
+            conn.execute("DELETE FROM reminders WHERE id = ?", (reminder_id,))
+            conn.commit()
+
+    def get_pending_reminders(self, current_time: str) -> list[tuple[Reminder, Task]]:
+        """Get reminders that are due and haven't been sent yet.
+
+        Args:
+            current_time: Current datetime in ISO format (YYYY-MM-DD HH:MM)
+
+        Returns:
+            List of (Reminder, Task) tuples for reminders that need to be sent
+        """
+        with self._get_connection() as conn:
+            cursor = conn.execute("""
+                SELECT r.id, r.task_id, r.reminder_datetime,
+                       t.id, t.name, t.category_id, t.status, t.progress,
+                       t.created_at, t.updated_at, t.due_date
+                FROM reminders r
+                JOIN tasks t ON r.task_id = t.id
+                LEFT JOIN sent_notifications sn ON r.id = sn.reminder_id
+                WHERE r.reminder_datetime <= ?
+                  AND sn.id IS NULL
+                  AND t.status != 'completed'
+                ORDER BY r.reminder_datetime ASC
+            """, (current_time,))
+
+            results = []
+            for row in cursor.fetchall():
+                reminder = Reminder(
+                    id=row[0],
+                    task_id=row[1],
+                    reminder_datetime=row[2]
+                )
+                task = Task(
+                    id=row[3],
+                    name=row[4],
+                    category_id=row[5],
+                    status=row[6],
+                    progress=row[7],
+                    created_at=row[8],
+                    updated_at=row[9],
+                    due_date=row[10]
+                )
+                results.append((reminder, task))
+
+            return results
+
+    def mark_notification_sent(
+        self,
+        reminder_id: int,
+        plugin_name: str,
+        status: str = "sent"
+    ) -> None:
+        """Mark a notification as sent.
+
+        Args:
+            reminder_id: ID of the reminder that was sent
+            plugin_name: Name of the notification plugin used
+            status: Status of the notification (sent, error, etc.)
+        """
+        from datetime import datetime
+        sent_at = datetime.now().isoformat()
+
+        with self._get_connection() as conn:
+            conn.execute("""
+                INSERT INTO sent_notifications (reminder_id, sent_at, plugin_name, status)
+                VALUES (?, ?, ?, ?)
+            """, (reminder_id, sent_at, plugin_name, status))
+            conn.commit()
+
+    def delete_reminders_for_task(self, task_id: int) -> int:
+        """Delete all reminders for a task.
+
+        Args:
+            task_id: ID of the task
+
+        Returns:
+            Number of reminders deleted
+        """
+        with self._get_connection() as conn:
+            cursor = conn.execute(
+                "DELETE FROM reminders WHERE task_id = ?",
+                (task_id,)
+            )
+            conn.commit()
+            return cursor.rowcount if cursor.rowcount else 0

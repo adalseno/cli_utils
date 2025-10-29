@@ -175,7 +175,7 @@ container-run: ## Run application in container (future)
 	@echo "$(YELLOW)Container support coming soon...$(NC)"
 
 # System-wide installation targets
-.PHONY: install-global uninstall-global link-global check-global install-aliases
+.PHONY: install-global uninstall-global link-global check-global install-aliases install-todo-service uninstall-todo-service check-todo-service
 install-global: ## Install CLI globally by copying to ~/bin
 	@echo "$(BLUE)Installing CLI Utils globally...$(NC)"
 	@mkdir -p ~/bin
@@ -244,3 +244,50 @@ install-aliases: ## Add shell aliases to ~/.zshrc
 	echo "  cu, cul, cur, cuv, cuc     - CLI shortcuts"; \
 	echo ""; \
 	echo "See src/docs/reference/shell-aliases.md for details"
+
+# TODO app reminder service targets
+install-todo-service: ## Install and enable TODO app reminder service (systemd)
+	@echo "$(BLUE)Installing TODO app reminder service...$(NC)"
+	@mkdir -p ~/.config/systemd/user
+	@# Replace PROJECT_DIR placeholder with actual path
+	@sed 's|%h/Projects/Fadim/2025/cli_utils|$(CURDIR)|g' todo-reminder.service > ~/.config/systemd/user/todo-reminder.service
+	@echo "$(GREEN)✓ Service file installed to ~/.config/systemd/user/$(NC)"
+	@echo "  Project path: $(CURDIR)"
+	@echo ""
+	@echo "$(BLUE)Enabling and starting service...$(NC)"
+	@systemctl --user daemon-reload
+	@systemctl --user enable todo-reminder.service
+	@systemctl --user start todo-reminder.service
+	@echo "$(GREEN)✓ Service enabled and started$(NC)"
+	@echo ""
+	@echo "$(YELLOW)Service commands:$(NC)"
+	@echo "  systemctl --user status todo-reminder.service  # Check status"
+	@echo "  systemctl --user stop todo-reminder.service    # Stop service"
+	@echo "  systemctl --user restart todo-reminder.service # Restart service"
+	@echo "  journalctl --user -u todo-reminder.service -f  # View logs"
+	@echo ""
+	@echo "$(YELLOW)Service logs also available at:$(NC)"
+	@echo "  ~/.config/cli_utils/logs/reminder_daemon.log"
+
+uninstall-todo-service: ## Stop and remove TODO app reminder service
+	@echo "$(BLUE)Removing TODO app reminder service...$(NC)"
+	@systemctl --user stop todo-reminder.service 2>/dev/null || true
+	@systemctl --user disable todo-reminder.service 2>/dev/null || true
+	@rm -f ~/.config/systemd/user/todo-reminder.service
+	@systemctl --user daemon-reload
+	@echo "$(GREEN)✓ Service removed$(NC)"
+
+check-todo-service: ## Check TODO app reminder service status
+	@echo "$(BLUE)Checking TODO reminder service...$(NC)"
+	@if [ -f ~/.config/systemd/user/todo-reminder.service ]; then \
+		echo "$(GREEN)✓ Service file found$(NC)"; \
+		echo ""; \
+		echo "Service status:"; \
+		systemctl --user status todo-reminder.service --no-pager || true; \
+		echo ""; \
+		echo "$(YELLOW)Recent logs:$(NC)"; \
+		journalctl --user -u todo-reminder.service -n 10 --no-pager || true; \
+	else \
+		echo "$(YELLOW)✗ Service not installed$(NC)"; \
+		echo "Install with: make install-todo-service"; \
+	fi

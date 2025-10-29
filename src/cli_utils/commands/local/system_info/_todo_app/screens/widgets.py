@@ -69,6 +69,7 @@ class TaskItem(ListItem):
         due_date: str | None = None,
         status: str = "todo",
         progress: int = 0,
+        reminder_count: int = 0,
     ) -> None:
         """
         Args:
@@ -79,6 +80,7 @@ class TaskItem(ListItem):
             due_date: Optional due date (YYYY-MM-DD)
             status: Task status (todo, completed)
             progress: Task completion progress (0-100)
+            reminder_count: Number of reminders set for this task
         """
         super().__init__()
         self.task_id = task_id
@@ -88,6 +90,7 @@ class TaskItem(ListItem):
         self.due_date = due_date
         self.status = status
         self.progress = progress
+        self.reminder_count = reminder_count
 
     def compose(self) -> ComposeResult:
         """Compose the task list item contents."""
@@ -113,5 +116,9 @@ class TaskItem(ListItem):
         # Add due date if present
         if self.due_date:
             parts.append(f"[dim]📅 {self.due_date}[/dim]")
+
+        # Add reminder indicator if task has reminders
+        if self.reminder_count > 0:
+            parts.append(f"[dim]⏰ {self.reminder_count}[/dim]")
 
         yield Static(" ".join(parts))

@@ -61,6 +61,9 @@ cli-utils local devtools count-tests tests -r          # Recursive test count
 cli-utils local devtools count-tests tests -r -v       # Verbose (show test names)
 cli-utils local devtools count-tests -b -r             # Browse + count tests
 
+# TODO app with reminders
+cli-utils local system_info todo                       # Launch interactive TODO app
+
 # Configuration
 cli-utils config
 cli-utils version
@@ -89,6 +92,11 @@ make docs-build                     # Build static docs
 make clean                          # Clean temp files
 make tree                           # Show structure
 make run                            # Run CLI with help
+
+# TODO App Service
+make install-todo-service           # Install reminder daemon
+make check-todo-service             # Check service status
+make uninstall-todo-service         # Remove service
 ```
 
 ## Adding New Commands
@@ -227,6 +235,14 @@ cli-utils local devtools code-report src --recursive
 
 # Generate metrics in JSON
 cli-utils local devtools code-report . -r -f json > metrics.json
+
+# Manage tasks with TODO app
+cli-utils local system_info todo
+# Then use keyboard shortcuts:
+# - n: new task
+# - e: edit task
+# - r: set reminders
+# - space: toggle completion
 
 # In scripts
 #!/bin/bash

@@ -1,0 +1,16 @@
+[Unit]
+Description=Todo Reminder Daemon
+After=graphical-session.target
+
+[Service]
+Type=simple
+# Use uv to run the daemon with the project's dependencies
+ExecStart=/bin/bash -c 'cd %h/Projects/Fadim/2025/cli_utils && uv run python -m cli_utils.commands.local.system_info._todo_app.reminder_daemon start'
+WorkingDirectory=%h/Projects/Fadim/2025/cli_utils
+StandardOutput=journal
+StandardError=journal
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

@@ -323,6 +323,86 @@ Test Count Summary
 **See Also:**
 - [Devtools Examples](../examples/devtools.md) - Detailed usage examples
 
+### System Info (`system_info`)
+
+System information and management commands.
+
+#### `todo`
+
+Launch an interactive terminal-based TODO application with task management, reminders, and desktop notifications.
+
+**Usage:**
+```bash
+cli-utils local system_info todo
+```
+
+**Features:**
+- Task management with categories
+- Progress tracking (0-100%)
+- Due date monitoring
+- Multiple reminders per task
+- Desktop notifications
+- Background reminder daemon
+- Smart lists (All, Upcoming, Past Due, Completed)
+
+**Keyboard Shortcuts:**
+- `n` - New task/category
+- `e` - Edit selected item
+- `d` - Delete selected item
+- `Space` - Toggle task completion
+- `r` - Manage task reminders
+- `k` - Switch to categories view
+- `t` - Switch to tasks view
+- `q` - Quit application
+
+**Examples:**
+```bash
+# Launch the TODO app
+cli-utils local system_info todo
+
+# The app opens in full-screen terminal mode with:
+# - Left sidebar with smart lists and categories
+# - Center panel with task list
+# - Bottom input bar for quick task entry
+# - Footer with keyboard shortcuts
+```
+
+**Reminder Service:**
+```bash
+# Install background reminder service (auto-start at login)
+make install-todo-service
+
+# Check service status
+make check-todo-service
+
+# Manually control service
+systemctl --user status todo-reminder.service
+systemctl --user start todo-reminder.service
+systemctl --user stop todo-reminder.service
+
+# View logs
+journalctl --user -u todo-reminder.service -f
+# Or
+tail -f ~/.config/cli_utils/logs/reminder_daemon.log
+
+# Uninstall service
+make uninstall-todo-service
+```
+
+**Data Storage:**
+- Database: `~/.config/cli_utils/todo.db`
+- Logs: `~/.config/cli_utils/logs/reminder_daemon.log`
+
+**Requirements:**
+- **For notifications**: `libnotify-bin` package (provides `notify-send`)
+  ```bash
+  sudo apt install libnotify-bin
+  ```
+
+**See Also:**
+- [TODO App Guide](../examples/todo-app.md) - Complete usage guide with examples
+- [Makefile Reference](makefile.md) - Service installation commands
+
 ## Remote Commands
 
 Commands that interact with external APIs.

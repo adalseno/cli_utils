@@ -67,6 +67,7 @@ nav:
   - Examples:
       - Text Utils: examples/text-utils.md
       - Devtools: examples/devtools.md
+      - TODO App: examples/todo-app.md
       - Clipboard: examples/clipboard.md
       - API Commands: examples/api-commands.md
   - Reference:

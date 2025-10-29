@@ -90,8 +90,6 @@ class TodoApp(App):
 
     # Static bindings - always available
     BINDINGS = [
-        ("ctrl+k", "show_categories", "Categories"),
-        ("ctrl+t", "show_tasks", "Tasks"),
         ("q", "quit", "Quit"),
     ]
 
@@ -127,21 +125,37 @@ class TodoApp(App):
 
     def action_show_categories(self) -> None:
         """Switch to category view."""
-        self.query_one("#task-view").display = False
-        self.query_one("#category-view").display = True
+        task_view = self.query_one("#task-view")
+        category_view = self.query_one("#category-view", CategoryView)
+
+        task_view.display = False
+        category_view.display = True
+
         # Reload categories
-        self.query_one(CategoryView).load_categories()
+        category_view.load_categories()
+
+        # Set focus to the categories list to activate view bindings
+        category_list = self.query_one("#categories-list-view", ListView)
+        category_list.focus()
 
     def action_show_tasks(self) -> None:
         """Switch back to task view."""
-        self.query_one("#task-view").display = True
-        self.query_one("#category-view").display = False
+        task_view = self.query_one("#task-view", TaskView)
+        category_view = self.query_one("#category-view")
+
+        task_view.display = True
+        category_view.display = False
+
         # Reload tasks with current filter
         if self.current_view.startswith("category_"):
             cat_id = int(self.current_view.split("_")[1])
-            self.query_one(TaskView).load_tasks("category", cat_id)
+            task_view.load_tasks("category", cat_id)
         else:
-            self.query_one(TaskView).load_tasks(self.current_view)
+            task_view.load_tasks(self.current_view)
+
+        # Set focus to the task list to activate view bindings
+        task_list = self.query_one("#task-list", ListView)
+        task_list.focus()
 
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         """Handle selection in any ListView."""
@@ -227,14 +241,15 @@ class TodoApp(App):
             if selected_item and isinstance(selected_item, TaskItem):
                 # Toggle between 'new' and 'completed'
                 new_status = "completed" if selected_item.status != "completed" else "new"
-                self.db.update_task(selected_item.task_id, status=new_status)
-                # Reload with current filter
-                if self.current_view.startswith("category_"):
-                    cat_id = int(self.current_view.split("_")[1])
-                    self.query_one(TaskView).load_tasks("category", cat_id)
+
+                # Check for reminders before completing
+                if new_status == "completed":
+                    self._check_and_complete_task(selected_item.task_id, new_status)
                 else:
-                    self.query_one(TaskView).load_tasks(self.current_view)
-                self.refresh_sidebar()
+                    # Uncompleting task - just update directly
+                    self.db.update_task(selected_item.task_id, status=new_status)
+                    self._reload_tasks()
+                    self.refresh_sidebar()
 
     def action_edit_item(self) -> None:
         """Edit the currently selected item (task or category)."""
@@ -310,7 +325,27 @@ class TodoApp(App):
         task_id = task_data.get("task_id")
 
         if task_id:
-            # Update existing task
+            # Check if task is being completed
+            current_task = next((t for t in self.db.get_tasks() if t.id == task_id), None)
+            if current_task:
+                old_status = current_task.status
+                old_progress = current_task.progress
+                new_status = task_data["status"]
+                new_progress = task_data["progress"]
+
+                # Check if transitioning to completed state
+                is_completing = (
+                    (old_status != "completed" and new_status == "completed") or
+                    (old_progress < 100 and new_progress >= 100)
+                )
+
+                if is_completing:
+                    # Store task data for later use in callback
+                    self._pending_task_data = task_data
+                    self._check_and_complete_task(task_id, new_status, new_progress)
+                    return
+
+            # Update existing task (not completing)
             self.db.update_task(
                 task_id,
                 name=task_data["name"],
@@ -330,11 +365,7 @@ class TodoApp(App):
             )
 
         # Reload tasks and refresh sidebar
-        if self.current_view.startswith("category_"):
-            cat_id = int(self.current_view.split("_")[1])
-            self.query_one(TaskView).load_tasks("category", cat_id)
-        else:
-            self.query_one(TaskView).load_tasks(self.current_view)
+        self._reload_tasks()
         self.refresh_sidebar()
 
     def action_cancel_input(self) -> None:
@@ -372,6 +403,123 @@ class TodoApp(App):
             if category_input.has_focus:
                 # Trigger the submit
                 await category_input.action_submit()
+
+    def _reload_tasks(self) -> None:
+        """Reload tasks with current filter."""
+        if self.current_view.startswith("category_"):
+            cat_id = int(self.current_view.split("_")[1])
+            self.query_one(TaskView).load_tasks("category", cat_id)
+        else:
+            self.query_one(TaskView).load_tasks(self.current_view)
+
+    def _check_and_complete_task(
+        self,
+        task_id: int,
+        new_status: str,
+        new_progress: int | None = None
+    ) -> None:
+        """Check for reminders and show confirmation before completing task.
+
+        Args:
+            task_id: ID of the task being completed
+            new_status: New status for the task
+            new_progress: New progress value (if applicable)
+        """
+        # Get reminder count for this task
+        reminder_count = self.db.get_reminder_count(task_id)
+
+        if reminder_count > 0:
+            # Get task name
+            tasks = self.db.get_tasks()
+            task = next((t for t in tasks if t.id == task_id), None)
+            if task:
+                # Store completion info for callback
+                self._completion_info = {
+                    "task_id": task_id,
+                    "status": new_status,
+                    "progress": new_progress
+                }
+
+                # Show confirmation dialog
+                from .screens.reminder_confirm import ReminderConfirmScreen
+                self.push_screen(
+                    ReminderConfirmScreen(
+                        task_id=task_id,
+                        task_name=task.name,
+                        reminder_count=reminder_count
+                    ),
+                    self._handle_reminder_confirmation
+                )
+                return
+
+        # No reminders or task not found - complete directly
+        self._complete_task_directly(task_id, new_status, new_progress)
+
+    def _handle_reminder_confirmation(self, result: bool | None) -> None:
+        """Handle confirmation dialog result.
+
+        Args:
+            result: True to remove reminders, False to keep, None to cancel
+        """
+        if result is None:
+            # User cancelled - don't complete task
+            # Clear pending task data if it exists
+            if hasattr(self, '_pending_task_data'):
+                delattr(self, '_pending_task_data')
+            return
+
+        # Get stored completion info
+        if not hasattr(self, '_completion_info'):
+            return
+
+        info = self._completion_info
+        task_id = info["task_id"]
+
+        # Remove reminders if user confirmed
+        if result is True:
+            self.db.delete_reminders_for_task(task_id)
+
+        # Complete the task
+        self._complete_task_directly(task_id, info["status"], info["progress"])
+
+        # Cleanup
+        delattr(self, '_completion_info')
+
+    def _complete_task_directly(
+        self,
+        task_id: int,
+        new_status: str,
+        new_progress: int | None = None
+    ) -> None:
+        """Complete the task without confirmation.
+
+        Args:
+            task_id: ID of the task to complete
+            new_status: New status for the task
+            new_progress: New progress value (if applicable)
+        """
+        # Check if we have pending task data from edit screen
+        if hasattr(self, '_pending_task_data'):
+            task_data = self._pending_task_data
+            self.db.update_task(
+                task_id,
+                name=task_data["name"],
+                category_id=task_data["category_id"],
+                status=task_data["status"],
+                progress=task_data["progress"],
+                due_date=task_data["due_date"],
+            )
+            delattr(self, '_pending_task_data')
+        else:
+            # Simple status update (from toggle)
+            if new_progress is not None:
+                self.db.update_task(task_id, status=new_status, progress=new_progress)
+            else:
+                self.db.update_task(task_id, status=new_status)
+
+        # Reload tasks and refresh sidebar
+        self._reload_tasks()
+        self.refresh_sidebar()
 
 
 if __name__ == "__main__":

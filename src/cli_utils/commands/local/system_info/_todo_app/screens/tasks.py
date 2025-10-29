@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING
 
+from textual.binding import Binding
 from textual.containers import Horizontal, Vertical, VerticalScroll
+from textual.events import DescendantFocus, DescendantBlur
 from textual.message import Message
 from textual.widgets import Input, ListView, Static
 
@@ -17,8 +19,14 @@ class TaskView(Vertical):
         ("e", "edit_task", "Edit"),
         ("d", "delete_task", "Delete"),
         ("space", "toggle_task", "Toggle"),
-        ("escape", "cancel_input", "Cancel"),
+        ("r", "manage_reminders", "Reminders"),
+        ("k", "show_categories", "Categories"),
+        Binding("escape", "cancel_input", "Cancel", show=False),
     ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._input_focused = False
 
     @property
     def todo_app(self) -> "TodoApp":
@@ -84,13 +92,17 @@ class TaskView(Vertical):
 
         # Add tasks to the list
         for task in tasks:
+            # Get reminder count for this task
+            reminder_count = db.get_reminder_count(task.id)
+
             task_item = TaskItem(
                 task_id=task.id,
                 text=task.name,
                 timestamp=task.created_at[:10],  # Just the date part
                 category_id=task.category_id,
                 due_date=task.due_date,
-                status=task.status
+                status=task.status,
+                reminder_count=reminder_count
             )
             # Add progress attribute
             task_item.progress = task.progress
@@ -147,3 +159,58 @@ class TaskView(Vertical):
     def action_new_task(self) -> None:
         """Create a new task via edit screen."""
         self.todo_app._open_task_edit_screen()
+
+    def action_manage_reminders(self) -> None:
+        """Open reminders management for selected task."""
+        task_list = self.query_one("#task-list", ListView)
+        if task_list.index is not None:
+            selected_item = task_list.highlighted_child
+            if selected_item and isinstance(selected_item, TaskItem):
+                # Open RemindersScreen with callback
+                from .reminders import RemindersScreen
+                self.app.push_screen(
+                    RemindersScreen(
+                        task_id=selected_item.task_id,
+                        task_name=selected_item.task_text
+                    ),
+                    self._handle_reminders_closed
+                )
+
+    def _handle_reminders_closed(self, result: None) -> None:
+        """Handle when reminders screen is closed.
+
+        Args:
+            result: Always None for reminders screen
+        """
+        # Refresh the task list to update reminder count
+        if self.todo_app.current_view.startswith("category_"):
+            cat_id = int(self.todo_app.current_view.split("_")[1])
+            self.load_tasks("category", cat_id)
+        else:
+            self.load_tasks(self.todo_app.current_view)
+
+    def action_show_categories(self) -> None:
+        """Switch to categories view."""
+        self.todo_app.action_show_categories()
+
+    # TODO: Fix escape binding visibility - it should show in footer when input is focused
+    # Current implementation doesn't display the binding despite check_action returning True
+    # Consider alternative approaches: custom footer, direct binding manipulation, or Textual updates
+    def on_descendant_focus(self, event: DescendantFocus) -> None:
+        """Track when input is focused to show escape binding."""
+        if isinstance(event.widget, Input) and event.widget.id == "task-input":
+            self._input_focused = True
+            self.app.refresh_bindings()
+
+    def on_descendant_blur(self, event: DescendantBlur) -> None:
+        """Track when input loses focus to hide escape binding."""
+        if isinstance(event.widget, Input) and event.widget.id == "task-input":
+            self._input_focused = False
+            self.app.refresh_bindings()
+
+    def check_action(self, action: str, parameters: tuple) -> bool | None:
+        """Check if an action is currently available."""
+        if action == "cancel_input":
+            # Only show/enable cancel_input when input is focused
+            return self._input_focused if self._input_focused else None
+        return True

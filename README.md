@@ -39,6 +39,9 @@ cli-utils --help
 # Convert text to uppercase
 cli-utils local text-utils uppercase "hello world"
 
+# Launch interactive TODO app with reminders
+cli-utils local system-info todo
+
 # View configuration
 cli-utils config
 
@@ -80,6 +83,7 @@ The complete documentation is also available in the [src/docs](src/docs/) folder
 - **Examples**
   - [Text Utils](src/docs/examples/text-utils.md)
   - [Devtools](src/docs/examples/devtools.md)
+  - [TODO App](src/docs/examples/todo-app.md)
   - [Clipboard](src/docs/examples/clipboard.md)
   - [API Commands](src/docs/examples/api-commands.md)
 
