@@ -15,12 +15,16 @@ Configuration is loaded in the following priority order (later sources override 
 The main configuration file is located at:
 
 ```
-~/.config/cli-utils/config.yaml
+~/.config/cli_utils/config.yaml
 ```
 
 ### Example Configuration
 
 ```yaml
+# Display settings
+display:
+  nerd_font_support: 1  # Auto-detected (1=enabled, 0=disabled)
+
 # API settings
 api:
   timeout: 60
@@ -74,6 +78,78 @@ def my_command():
     output_format = settings.get("preferences.output_format", "json")
 ```
 
+## Icon and Display Settings
+
+### Nerd Font Support
+
+CLI Utils automatically detects if you have [Nerd Fonts](https://www.nerdfonts.com/) installed on your system. Nerd Fonts provide beautiful icons that enhance the visual appearance of the TODO app and other components.
+
+The detection happens automatically on first run and the result is saved to your config file:
+
+```yaml
+display:
+  nerd_font_support: 1  # 1 = Nerd Fonts available, 0 = not available
+```
+
+#### Check Nerd Font Status
+
+You can check if Nerd Fonts are detected:
+
+```bash
+make check-nerdfonts
+```
+
+This will show:
+- Whether Nerd Fonts are installed
+- List of detected Nerd Fonts (if any)
+- Instructions for installing Nerd Fonts
+
+#### Icon Fallback System
+
+The icon system has a 3-tier fallback mechanism:
+
+1. **Nerd Font Icons** (if available) - Beautiful, consistent icons
+2. **Emoji** (if terminal supports them) - Unicode emoji characters
+3. **Text Representation** (always works) - Simple ASCII characters
+
+This ensures the app works perfectly regardless of your font setup!
+
+#### Installing Nerd Fonts
+
+To get the best visual experience:
+
+1. Visit [Nerd Fonts Downloads](https://www.nerdfonts.com/font-downloads)
+2. Download and install your preferred font (FiraCode, JetBrainsMono, Hack, etc.)
+3. Configure your terminal to use the Nerd Font
+4. Restart your terminal
+5. Run `make check-nerdfonts` to verify detection
+
+#### Manual Override
+
+If you want to force enable or disable Nerd Font usage, edit your config file:
+
+```yaml
+display:
+  nerd_font_support: 0  # Force disable Nerd Fonts
+```
+
+Then restart the application. To re-enable auto-detection, delete this line from the config.
+
+#### Migrating Existing Categories
+
+If you're upgrading from an older version that used emoji icons, you can migrate your TODO app categories to use Nerd Fonts:
+
+```bash
+make migrate-icons
+```
+
+This will:
+- Update all categories in the database to use Nerd Font icons
+- Replace emoji (👤, 💼, etc.) with Nerd Font equivalents
+- Preserve category names and descriptions
+
+**Note:** This is a one-time migration. New categories created after installing the icon system will automatically use Nerd Fonts.
+
 ## Viewing Current Configuration
 
 You can view your current configuration at any time:
@@ -87,6 +163,7 @@ This displays:
 - Log level
 - API timeout
 - Max retries
+- Nerd Font support status
 - Custom configuration file location
 
 ## Configuration for Development

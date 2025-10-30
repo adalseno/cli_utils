@@ -1,7 +1,7 @@
 # Makefile for CLI Utils project
 # Automates common development tasks
 
-.PHONY: help install install-dev test test-cov test-watch clean format lint check docs-build docs-serve run version
+.PHONY: help install install-dev test test-cov test-watch clean format lint check docs-build docs-serve run version check-nerdfonts migrate-icons
 
 # Default target - show help
 .DEFAULT_GOAL := help
@@ -110,7 +110,7 @@ version: ## Display version information
 	$(UV) run python -m cli_utils.main version
 
 # Development workflow targets
-dev-setup: install-dev ## Complete development setup
+dev-setup: install-dev check-nerdfonts ## Complete development setup
 	@echo "$(BLUE)Setting up development environment...$(NC)"
 	@echo "$(GREEN)✓ Development environment ready$(NC)"
 	@echo ""
@@ -118,6 +118,14 @@ dev-setup: install-dev ## Complete development setup
 	@echo "  1. Run tests: make test"
 	@echo "  2. Format code: make format"
 	@echo "  3. Build docs: make docs-serve"
+
+check-nerdfonts: ## Check if Nerd Fonts are installed and update config
+	@echo "$(BLUE)Checking for Nerd Fonts...$(NC)"
+	@$(UV) run python scripts/check_nerdfonts.py
+
+migrate-icons: ## Migrate TODO app category icons from emoji to Nerd Fonts
+	@echo "$(BLUE)Migrating category icons to Nerd Fonts...$(NC)"
+	@$(UV) run python scripts/migrate_category_icons.py
 
 qa: clean format lint-fix test-cov ## Run full quality assurance (clean, format, lint, test)
 	@echo "$(GREEN)✓ Quality assurance complete$(NC)"

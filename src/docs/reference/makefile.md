@@ -80,7 +80,9 @@ make test ARGS="--lf"
 
 | Command | Description |
 |---------|-------------|
-| `make dev-setup` | Complete development environment setup |
+| `make dev-setup` | Complete development environment setup (includes Nerd Font check) |
+| `make check-nerdfonts` | Check if Nerd Fonts are installed on the system |
+| `make migrate-icons` | Migrate TODO app category icons from emoji to Nerd Fonts |
 | `make run` | Run the CLI application with help |
 | `make version` | Display version information |
 | `make shell` | Start interactive Python shell with project loaded |
@@ -139,6 +141,65 @@ make qa                 # Runs: clean, format, lint-fix, test-cov
 
 ```bash
 make ci                 # Runs: lint, test-cov
+```
+
+### Checking Nerd Font Support
+
+```bash
+# Check if Nerd Fonts are installed
+make check-nerdfonts
+
+# This will show:
+# - Whether Nerd Fonts are detected
+# - List of installed Nerd Fonts
+# - Installation instructions if needed
+```
+
+**What it does:**
+- Scans your system fonts using `fc-list`
+- Detects any installed Nerd Fonts
+- Shows up to 5 detected fonts
+- Provides installation guidance if needed
+
+**Why it matters:**
+- Nerd Fonts provide beautiful icons in the TODO app
+- Fallback to emoji or text if not available
+- Part of `make dev-setup` workflow
+
+### Migrating Category Icons
+
+```bash
+# Migrate TODO app category icons to Nerd Fonts
+make migrate-icons
+```
+
+**What it does:**
+- Updates all TODO app categories in the database
+- Replaces emoji icons with Nerd Font equivalents
+- Preserves category names and descriptions
+
+**When to use:**
+- After upgrading to a version with icon system support
+- After installing Nerd Fonts for the first time
+- If you want to convert emoji categories to Nerd Font icons
+
+**Example output:**
+```
+CATEGORY ICON MIGRATION
+============================================================
+
+Found 2 categories
+
+Updating category 'Personal':
+  Old icon: 👤 (code: '👤')
+  New icon: 󰀄 (code: '\U000f0004')
+Updating category 'Work':
+  Old icon: 💼 (code: '💼')
+  New icon: 󰃖 (code: '\U000f00d6')
+
+============================================================
+Migration complete: 2 categories updated
+============================================================
 ```
 
 ### Creating New Commands

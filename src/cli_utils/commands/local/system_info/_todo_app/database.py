@@ -6,6 +6,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, cast
 
+from cli_utils.utils.icons import icon
+
 
 @dataclass
 class Category:
@@ -120,10 +122,10 @@ class TodoDatabase:
             count = cursor.fetchone()["count"]
 
             if count == 0:
-                # Add default categories
+                # Add default categories with icon fallback support
                 default_categories = [
-                    ("Personal", "👤", "Personal tasks", 1),
-                    ("Work", "💼", "Work-related tasks", 1),
+                    ("Personal", icon("nf-md-account", "👤", "[USER]"), "Personal tasks", 1),
+                    ("Work", icon("nf-md-briefcase", "💼", "[WORK]"), "Work-related tasks", 1),
                 ]
 
                 conn.executemany(

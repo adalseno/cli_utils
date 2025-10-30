@@ -15,6 +15,8 @@ from typing import Any
 import yaml
 from dotenv import load_dotenv
 
+from cli_utils.utils.nerd_font_check import check_nerd_fonts
+
 
 @dataclass
 class Settings:
@@ -25,13 +27,15 @@ class Settings:
         log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
         api_timeout: Default timeout for API requests in seconds
         max_retries: Maximum number of retries for failed API requests
+        nerd_font_support: Whether Nerd Fonts are installed (1=yes, 0=no)
         custom_config: Additional custom configuration loaded from YAML
     """
 
-    config_dir: Path = field(default_factory=lambda: Path.home() / ".config" / "cli-utils")
+    config_dir: Path = field(default_factory=lambda: Path.home() / ".config" / "cli_utils")
     log_level: str = "INFO"
     api_timeout: int = 30
     max_retries: int = 3
+    nerd_font_support: int = 0
     custom_config: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
@@ -49,6 +53,12 @@ class Settings:
 
         # Load custom configuration from YAML if exists
         self._load_yaml_config()
+
+        # Check for Nerd Font support
+        self._detect_nerd_fonts()
+
+        # Initialize icon manager with detected Nerd Font support
+        self._init_icon_manager()
 
     def _load_yaml_config(self) -> None:
         """Load configuration from YAML file if it exists."""
@@ -101,6 +111,35 @@ class Settings:
                 yaml.safe_dump(config, f, default_flow_style=False)
         except Exception as e:
             print(f"Error saving config to {config_file}: {e}")
+
+    def _detect_nerd_fonts(self) -> None:
+        """Detect if Nerd Fonts are installed and update configuration."""
+        # First check if it's already set in custom config
+        config_value = self.get("display.nerd_font_support")
+
+        if config_value is not None:
+            # Use the value from config file
+            self.nerd_font_support = int(config_value)
+        else:
+            # Auto-detect Nerd Fonts
+            self.nerd_font_support = check_nerd_fonts()
+
+            # Save the detected value to config for future use
+            if not self.custom_config:
+                self.custom_config = {}
+            if "display" not in self.custom_config:
+                self.custom_config["display"] = {}
+            self.custom_config["display"]["nerd_font_support"] = self.nerd_font_support
+            self.save_config(self.custom_config)
+
+    def _init_icon_manager(self) -> None:
+        """Initialize the global icon manager with detected Nerd Font support."""
+        try:
+            from cli_utils.utils.icons import init_icon_manager
+            init_icon_manager(self.nerd_font_support)
+        except ImportError:
+            # Icon manager not available, skip initialization
+            pass
 
 
 # Global settings instance

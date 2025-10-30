@@ -66,10 +66,11 @@ nav:
       - Command Groups: user-guide/command-groups.md
   - Examples:
       - Text Utils: examples/text-utils.md
+      - Icon System: examples/icons.md
       - Devtools: examples/devtools.md
-      - TODO App: examples/todo-app.md
       - Clipboard: examples/clipboard.md
       - API Commands: examples/api-commands.md
+      - TODO App: examples/todo-app.md
   - Reference:
       - Command Reference: reference/commands.md
       - Quick Reference: reference/quick-reference.md

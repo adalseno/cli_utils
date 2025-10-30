@@ -345,6 +345,159 @@ def save_file(
 
 **Note:** Usually you should use `OutputHandler` instead, which wraps this function.
 
+### Icons (`cli_utils.utils.icons`)
+
+Smart icon system with automatic Nerd Font detection and fallback support.
+
+#### Icon System Overview
+
+CLI Utils includes an intelligent icon system that automatically adapts to your terminal's capabilities:
+
+1. **Nerd Font Icons** - If you have Nerd Fonts installed, beautiful icons are used
+2. **Emoji Fallback** - If your terminal supports emoji, Unicode emoji are used
+3. **Text Fallback** - Simple ASCII text representations for basic terminals
+
+The system detects your setup automatically on first run!
+
+#### Using Predefined Icons
+
+The easiest way to use icons is through the `Icons` class:
+
+**Usage:**
+```python
+from cli_utils.utils.icons import Icons
+
+def my_command():
+    """Command using predefined icons."""
+    console.print(f"{Icons.check()} Task completed")
+    console.print(f"{Icons.cross()} Operation failed")
+    console.print(f"{Icons.calendar()} Due: 2025-11-01")
+    console.print(f"{Icons.clock()} Reminder set")
+```
+
+**Available Icons:**
+
+| Method | Nerd Font | Emoji | Text |
+|--------|-----------|-------|------|
+| `Icons.check()` | 󰄬 | ✅ | [✓] |
+| `Icons.cross()` | 󰅖 | ❌ | [✗] |
+| `Icons.circle()` | 󰄰 | ⭕ | [ ] |
+| `Icons.play()` | 󰐊 | ▶️ | [>] |
+| `Icons.calendar()` | 󰃮 | 📅 | [DATE] |
+| `Icons.clock()` | 󰥔 | ⏰ | [TIME] |
+| `Icons.list()` | 󰉹 | 📋 | [LIST] |
+| `Icons.folder()` | 󰉋 | 📁 | [FOLDER] |
+| `Icons.file()` | 󰈙 | 📄 | [FILE] |
+| `Icons.info()` | 󰋽 | ℹ️ | [i] |
+| `Icons.warning()` | 󰀪 | ⚠️ | [!] |
+| `Icons.star()` | 󰓎 | ⭐ | [*] |
+| `Icons.tag()` | 󰓹 | 🏷️ | [TAG] |
+
+#### Using Custom Icons
+
+For custom icons, use the `icon()` function:
+
+**Function Signature:**
+```python
+def icon(
+    nerd_icon_name: str,
+    emoji_char: str,
+    fallback: str
+) -> str
+```
+
+**Parameters:**
+- `nerd_icon_name` - Nerd Font icon name (e.g., "nf-md-rocket")
+- `emoji_char` - Emoji character to use as fallback
+- `fallback` - Plain text string as final fallback
+
+**Usage:**
+```python
+from cli_utils.utils.icons import icon
+
+def my_command():
+    """Command using custom icons."""
+    rocket = icon("nf-md-rocket", "🚀", "[ROCKET]")
+    console.print(f"{rocket} Launching...")
+
+    heart = icon("nf-md-heart", "❤️", "[LOVE]")
+    console.print(f"{heart} Favorite item")
+```
+
+#### Icon Manager
+
+For advanced usage, you can work with the `IconManager` directly:
+
+**Usage:**
+```python
+from cli_utils.utils.icons import get_icon_manager
+
+def my_command():
+    """Command checking icon support."""
+    manager = get_icon_manager()
+
+    # Check what's being used
+    if manager._nerd_font_support == 1:
+        console.print("Using Nerd Font icons!")
+    elif manager._terminal_supports_emoji:
+        console.print("Using emoji icons")
+    else:
+        console.print("Using text icons")
+```
+
+#### Real-World Example
+
+Here's how the TODO app uses icons:
+
+```python
+from cli_utils.utils.icons import Icons
+
+class TaskItem:
+    """Display a task with status icon."""
+
+    def render(self, status: str, text: str, due_date: str = None):
+        # Get appropriate status icon
+        status_icons = {
+            "new": Icons.circle(),
+            "in_progress": Icons.play(),
+            "completed": Icons.check()
+        }
+        icon = status_icons.get(status, Icons.circle())
+
+        # Build display
+        parts = [f"{icon} {text}"]
+
+        if due_date:
+            parts.append(f"{Icons.calendar()} {due_date}")
+
+        return " ".join(parts)
+```
+
+**Output examples:**
+- With Nerd Fonts: `󰄰 Buy groceries 󰃮 2025-11-01`
+- With Emoji: `⭕ Buy groceries 📅 2025-11-01`
+- Text fallback: `[ ] Buy groceries [DATE] 2025-11-01`
+
+#### Testing Icons
+
+When testing, you can control icon behavior:
+
+```python
+from cli_utils.utils.icons import IconManager
+
+def test_with_nerd_fonts():
+    """Test with Nerd Fonts enabled."""
+    manager = IconManager(nerd_font_support=1)
+    icon_str = manager.icon("nf-md-check", "✅", "[DONE]")
+    # Will use Nerd Font icon
+
+def test_without_nerd_fonts():
+    """Test with Nerd Fonts disabled."""
+    manager = IconManager(nerd_font_support=0)
+    icon_str = manager.icon("nf-md-check", "✅", "[DONE]")
+    # Will use emoji or text based on terminal
+```
+
 ### Clipboard (`cli_utils.utils.clipboard`)
 
 Cross-platform clipboard utilities.

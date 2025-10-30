@@ -16,6 +16,7 @@ The TODO app provides a modern, interactive interface for managing tasks with ca
 - **Smart Lists**: Pre-built filters (All, Upcoming, Past Due, Completed)
 - **Desktop Notifications**: Get notified when reminders are due
 - **Background Service**: Auto-start reminder daemon at login
+- **Smart Icons**: Automatic Nerd Font detection with emoji/text fallback
 
 ## Quick Start
 
@@ -402,6 +403,36 @@ journalctl --user -u todo-reminder.service -n 50
 rm ~/.config/cli_utils/todo.db
 # Restart app to recreate
 ```
+
+### Icons Showing Emoji Instead of Nerd Fonts
+
+If you see emoji (👤 💼 ✅) instead of Nerd Font icons:
+
+**For new categories (created after icon system install):**
+1. Check if Nerd Fonts are installed:
+   ```bash
+   make check-nerdfonts
+   ```
+
+2. Ensure your terminal is using a Nerd Font
+3. Restart the terminal and app
+
+**For existing categories (created before icon system):**
+
+Categories store their icons in the database. To migrate emoji to Nerd Fonts:
+
+```bash
+# Migrate all category icons
+make migrate-icons
+```
+
+This will convert all emoji icons to their Nerd Font equivalents while preserving category data.
+
+**What the migration does:**
+- Updates Personal (👤 → 󰀄)
+- Updates Work (💼 → 󰃖)
+- Updates any custom categories with emoji icons
+- Safe to run multiple times
 
 ## Architecture
 

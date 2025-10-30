@@ -8,6 +8,7 @@ Welcome to **CLI Utils** - a modern CLI application designed to organize and man
 - **Auto-Discovery**: Commands are automatically discovered and loaded from the commands directory
 - **Command Groups**: Organize related commands into groups (e.g., text_utils, file_ops)
 - **Rich Output**: Beautiful terminal output using Rich library
+- **Smart Icon System**: Automatic Nerd Font detection with emoji and text fallbacks
 - **Type-Safe**: Full type hints throughout the codebase
 - **Well-Tested**: Comprehensive test suite with pytest
 - **Documented**: Auto-generated API documentation from docstrings
